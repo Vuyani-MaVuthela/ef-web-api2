@@ -6,54 +6,47 @@ namespace ef_web_api.Controllers
     [Route("api/[controller]")]
     public class SuperHeroController : ControllerBase
     {
-        private readonly SuperHeroContext superHeroContext;
+        private readonly ISuperHeroService superHeroService;
 
-        public SuperHeroController(SuperHeroContext superHeroContext)
+        public SuperHeroController(ISuperHeroService superHeroService)
         {
-            this.superHeroContext = superHeroContext;
+            this.superHeroService = superHeroService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<SuperHero>>> Get()
+        public async Task<ActionResult<ServiceResponse<List<SuperHero>>>> Get()
         {
-            return Ok(await superHeroContext.SuperHeroes.ToListAsync());
+            return Ok(await superHeroService.GetSuperHeroes());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SuperHero>> Get(int id)
+        public async Task<ActionResult<ServiceResponse<SuperHero>>> Get(int id)
         {
-            var hero = await superHeroContext.SuperHeroes.FindAsync(id);
-            if (hero == null)
-                return NotFound("Hero does not exist");
-            return Ok(hero);
+            return Ok(await superHeroService.GetSuperHeroById(id));
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<SuperHero>>> AddSuperHero(SuperHero superHero)
+        public async Task<ActionResult<ServiceResponse<List<SuperHero>>>> AddSuperHero(SuperHero superHero)
         {
-            superHeroContext.SuperHeroes.Add(superHero);
-            await superHeroContext.SaveChangesAsync();
-            return Ok(superHero);
+            return Ok(await superHeroService.AddSuperHero(superHero));
         }
 
         [HttpPut]
-        public async Task<ActionResult<SuperHero>> UpdateHero(SuperHero superHero)
+        public async Task<ActionResult<ServiceResponse<SuperHero>>> UpdateHero(SuperHero superHero)
         {
-            superHeroContext.SuperHeroes.Update(superHero);
-            await superHeroContext.SaveChangesAsync();
-            return Ok(superHero);
+            return Ok(await superHeroService.UpdateSuperHero(superHero));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<SuperHero>> Delete(int id)
-        {
-            var hero = await superHeroContext.SuperHeroes.FindAsync(id);
-            if (hero == null)
-                return NotFound("Hero does not exist");
+        //[HttpDelete("{id}")]
+        //public async Task<ActionResult<ServiceResponse<SuperHero>> Delete(int id)
+        //{
+        //    var hero = await superHeroContext.SuperHeroes.FindAsync(id);
+        //    if (hero == null)
+        //        return NotFound("Hero does not exist");
 
-            superHeroContext.SuperHeroes.Remove(hero);
-            await superHeroContext.SaveChangesAsync();
-            return Ok();
-        }
+        //    superHeroContext.SuperHeroes.Remove(hero);
+        //    await superHeroContext.SaveChangesAsync();
+        //    return Ok();
+        //}
     }
 }
