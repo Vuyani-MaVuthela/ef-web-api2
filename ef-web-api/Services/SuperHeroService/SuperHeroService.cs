@@ -22,40 +22,86 @@ namespace ef_web_api.Services.SuperHeroService
               }
         };
 
-        public async Task<ServiceResponse<List<SuperHero>>> GetSuperHeroes()
+        private readonly IMapper mapper;
+
+        public SuperHeroService(IMapper mapper)
         {
-            var serviceResponse = new ServiceResponse<List<SuperHero>>();
-            serviceResponse.Data = superHeroes;
-            return serviceResponse;
-            //return new ServiceResponse<List<SuperHero>> { Data = superHeroes };
+            this.mapper = mapper;
         }
 
-        public async Task<ServiceResponse<SuperHero>> GetSuperHeroById(int id)
+        public async Task<ServiceResponse<List<GetSuperHeroDto>>> GetSuperHeroes()
+        {
+            return new ServiceResponse<List<GetSuperHeroDto>>
+            {
+                Data = superHeroes.Select(x => this.mapper.Map<GetSuperHeroDto>(x)).ToList()
+            };
+        }
+
+        public async Task<ServiceResponse<GetSuperHeroDto>> GetSuperHeroById(int id)
         {
             SuperHero superHero = superHeroes.FirstOrDefault(x => x.Id == id);
-            var serviceResponse = new ServiceResponse<SuperHero>();
-            serviceResponse.Data = superHero;
+            var serviceResponse = new ServiceResponse<GetSuperHeroDto>();
+            serviceResponse.Data = this.mapper.Map<GetSuperHeroDto>(superHero);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<SuperHero>> AddSuperHero(SuperHero superHero)
+        public async Task<ServiceResponse<GetSuperHeroDto>> AddSuperHero(AddSuperHeroDto newSuperHero)
         {
+            var serviceResponse = new ServiceResponse<GetSuperHeroDto>();
+            var superHero = this.mapper.Map<SuperHero>(newSuperHero);
             superHeroes.Add(superHero);
-            var serviceResponse = new ServiceResponse<SuperHero>();
-            serviceResponse.Data = superHero;
+            serviceResponse.Data = this.mapper.Map<GetSuperHeroDto>(superHero);
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<SuperHero>> UpdateSuperHero(SuperHero newSuperHero)
+        public async Task<ServiceResponse<GetSuperHeroDto>> UpdateSuperHero(UpdateSuperHeroDto superHeroEdit)
         {
-            var superHero = superHeroes.FirstOrDefault(x => x.Id == newSuperHero.Id);
-            if (superHero == null)
+            ServiceResponse<GetSuperHeroDto> serviceResponse = new ServiceResponse<GetSuperHeroDto>();
+            try
             {
-                return null;
+                SuperHero superHero = superHeroes.FirstOrDefault(x => x.Id == superHeroEdit.Id);
+                if (superHero != null)
+                {
+                    //superHero.Name = superHeroEdit.Name; manually edit
+                    this.mapper.Map(superHeroEdit, superHero);
+                    serviceResponse.Data = this.mapper.Map<GetSuperHeroDto>(superHero);
+                }
+                else
+                {
+                    serviceResponse.IsSuccess = false;
+                    serviceResponse.Message = "Not found";
+                }
             }
-            superHero.Name = newSuperHero.Name;
-            var serviceResponse = new ServiceResponse<SuperHero>();
-            serviceResponse.Data = superHero;
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetSuperHeroDto>> DeleteSuperHero(int id)
+        {
+            ServiceResponse<GetSuperHeroDto> serviceResponse = new ServiceResponse<GetSuperHeroDto>();
+            try
+            {
+                SuperHero superHero = superHeroes.FirstOrDefault(x => x.Id == id);
+                if (superHero != null)
+                {
+                    serviceResponse.Data = this.mapper.Map<GetSuperHeroDto>(superHero);
+                    superHeroes.Remove(superHero);
+                }
+                else
+                {
+                    serviceResponse.IsSuccess = false;
+                    serviceResponse.Message = "Not found";
+                }
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
             return serviceResponse;
         }
     }

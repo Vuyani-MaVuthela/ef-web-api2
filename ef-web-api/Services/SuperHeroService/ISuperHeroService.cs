@@ -2,10 +2,10 @@
 {
     public interface ISuperHeroService
     {
-        Task<ServiceResponse<List<SuperHero>>> GetSuperHeroes();
-        Task<ServiceResponse<SuperHero>> GetSuperHeroById(int id);
-        Task<ServiceResponse<SuperHero>> AddSuperHero(SuperHero newSuperHero);
-        Task<ServiceResponse<SuperHero>> UpdateSuperHero(SuperHero newSuperHero);
-        //void DeleteSuperHero(int id);
+        Task<ServiceResponse<List<GetSuperHeroDto>>> GetSuperHeroes();
+        Task<ServiceResponse<GetSuperHeroDto>> GetSuperHeroById(int id);
+        Task<ServiceResponse<GetSuperHeroDto>> AddSuperHero(AddSuperHeroDto newSuperHero);
+        Task<ServiceResponse<GetSuperHeroDto>> UpdateSuperHero(UpdateSuperHeroDto newSuperHero);
+        Task<ServiceResponse<GetSuperHeroDto>> DeleteSuperHero(int id);
     }
 }
